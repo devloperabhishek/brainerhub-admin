@@ -1,23 +1,51 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { getToken } from '../utils/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView
+      name: 'login',
+      component: () => import('../views/Login.vue'),
+      meta: { authRequires: false}
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      path: '/products',
+      name: 'product',
+      component: () => import('../views/product/ListProducts.vue'),
+
+    },
+    {
+      path: '/categories',
+      name: 'categories',
+      component: () => import('../views/category/ListCategories.vue')
+    },
+    {
+      path: '/sub-categories',
+      name: 'subcategories,',
+      component: () => import('../views/sub-category/ListSubCategories.vue')
     }
   ]
 })
+
+
+router.beforeEach((to, from, next) => {
+
+  let authRequires = true; // initially auth required
+
+	if ('authRequires' in to.meta) {
+		authRequires = to.meta.authRequires // if key available then act accordingly
+	}
+
+  if (authRequires && !getToken()) {
+		next({ path: '/' })
+	}
+	else {
+		next()
+	}
+
+  
+}) 
 
 export default router
